@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/")
@@ -23,7 +25,6 @@ public class ProductController {
 
 
     @PostMapping("/products")
-
     public ResponseEntity<ProductModel> saveProduct(@RequestBody @Valid ProductRecordDto productRecordDto) {
         var productModel = new ProductModel();
         BeanUtils.copyProperties(productRecordDto, productModel);
@@ -35,5 +36,26 @@ public class ProductController {
     public ResponseEntity<List<ProductModel>> getAll() {
        return ResponseEntity.status(HttpStatus.OK).body(productRepository.findAll());
     }
+
+    @GetMapping("/products/{id}")
+    public ResponseEntity<Object> getOne(@PathVariable(value = "id") UUID id) {
+
+        // Busca o produto no banco de dados. Retorna um Optional que pode conter ou não o produto.
+        Optional<ProductModel> productO = productRepository.findById(id);
+
+        // Verifica se o produto foi encontrado
+        if(productO.isEmpty()){
+
+            // Produto não encontrado, retorna 404 com a mensagem de erro.
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("produto não encontrado.");
+
+        }
+
+        // Produto encontrado, retorna 200 com o produto no corpo da resposta.
+        return  ResponseEntity.status(HttpStatus.OK).body(productO.get());
+
+
+    }
+
 
 }
