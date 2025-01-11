@@ -37,7 +37,7 @@ public class ProductController {
        return ResponseEntity.status(HttpStatus.OK).body(productRepository.findAll());
     }
 
-    @GetMapping("/products/{id}")
+    @GetMapping("/product/{id}")
     public ResponseEntity<Object> getOne(@PathVariable(value = "id") UUID id) {
 
         // Busca o produto no banco de dados. Retorna um Optional que pode conter ou não o produto.
@@ -58,7 +58,7 @@ public class ProductController {
     }
 
 
-    @PutMapping("/products/{id}")
+    @PutMapping("/product/{id}")
 
     public ResponseEntity<Object>upDateProduct(@PathVariable(value = "id") UUID id,
                                                @RequestBody @Valid ProductRecordDto productRecordDto){
@@ -72,6 +72,19 @@ public class ProductController {
         var productModel = produtO.get();
         BeanUtils.copyProperties(productRecordDto, productModel);
         return ResponseEntity.status(HttpStatus.OK).body(productRepository.save(productModel));
+    }
+
+
+    @DeleteMapping("/product/{id}")
+    public ResponseEntity<Object>deleteProduct(@PathVariable(value = "id") UUID id){
+        Optional<ProductModel> producT = productRepository.findById(id);
+
+        if (producT.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("produto não encontrado");
+        }
+
+        productRepository.delete(producT.get());
+        return ResponseEntity.status(HttpStatus.OK).body("produto deletado");
     }
 
 
